@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.john.springbootdemo.dao.AreaDao">
+    <resultMap type="com.john.springbootdemo.entity.Area" id="BaseResultMap">
+        <result column="area_id" property="areaId"/>
+        <result column="area_name" property="areaName"/>
+        <result column="priority" property="priority"/>
+        <result column="crate_time" property="createTime"/>
+        <result column="last_edit_time" property="lastEditTime"/>
+    </resultMap>
+
+    <select id="queryArea" resultMap="BaseResultMap">
+        SELECT * FROM  tb_area ORDER BY priority DESC
+    </select>
+
+    <select id="queryAreaById" parameterType="int" resultMap="BaseResultMap"
+    >
+        SELECT * FROM  tb_area WHERE area_id=#{areaId}
+    </select>
+
+    <insert id="insertArea" useGeneratedKeys="true" keyProperty="areaId" keyColumn="area_id"
+            parameterType="com.john.springbootdemo.entity.Area">
+      INSERT INTO tb_area(area_name,priority,crate_time,last_edit_time)
+      VALUES (#{areaName},#{priority},#{createTime},#{lastEditTime})
+    </insert>
+
+    <update id="updateArea" parameterType="com.john.springbootdemo.entity.Area"
+    >
+        UPDATE tb_area
+        <set>
+            <if test="areaName!=null">area_name=#{areaName},</if>
+            <if test="priority!=0">priority=#{priority},</if>
+            <if test="lastEditTime!=null">last_edit_time=#{lastEditTime}</if>
+        </set>
+        WHERE area_id=#{areaId}
+    </update>
+
+    <delete id="deleteArea">
+        DELETE FROM tb_area WHERE area_id=#{areaId}
+    </delete>
+
+</mapper>
