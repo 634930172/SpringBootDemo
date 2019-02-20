@@ -19,6 +19,7 @@ import java.util.Map;
  * <p/>
  * Description:区域返回类逻辑
  */
+ //返回json的注解
 @RestController
 @RequestMapping("/superadmin")
 public class AreaController {
