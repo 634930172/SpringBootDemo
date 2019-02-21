@@ -31,7 +31,9 @@ public class AreaController {
     private Map<Object, Object> getListArea() {
         Map<Object, Object> modelMap = new HashMap<>();
         List<Area> areaList = areaService.queryArea();
-        modelMap.put("areaList", areaList);
+        modelMap.put("code",200);
+        modelMap.put("msg","success");
+        modelMap.put("data", areaList);
         return modelMap;
     }
 
@@ -39,28 +41,37 @@ public class AreaController {
     private Map<Object, Object> getAreabyId(int areaId) {
         Map<Object, Object> modelMap = new HashMap<>();
         Area area = areaService.queryAreaById(areaId);
-        modelMap.put("area", area);
+        modelMap.put("code",200);
+        modelMap.put("msg","success");
+        modelMap.put("data", area);
         return modelMap;
     }
 
+    //没有将requestBody注解用上 后续再做探讨
     @RequestMapping(value = "/addarea", method = RequestMethod.POST)
-    private Map<Object, Object> addArea(@RequestBody Area area) {
+    private Map<Object, Object> addArea(Area area) {
         Map<Object, Object> modelMap = new HashMap<>();
-        modelMap.put("success", areaService.insertArea(area));
+        modelMap.put("code",areaService.insertArea(area)?200:0);
+        modelMap.put("msg","success");
+        modelMap.put("data","插入成功");
         return modelMap;
     }
-
+    //没有将requestBody注解用上 后续再做探讨
     @RequestMapping(value = "/modifyarea", method = RequestMethod.POST)
-    private Map<Object, Object> modifyArea(@RequestBody Area area) {
+    private Map<Object, Object> modifyArea(Area area) {
         Map<Object, Object> modelMap = new HashMap<>();
-        modelMap.put("success", areaService.modifyArea(area));
+        modelMap.put("code", areaService.modifyArea(area)?200:0);
+        modelMap.put("msg","success");
+        modelMap.put("data","修改成功");
         return modelMap;
     }
 
     @RequestMapping(value = "/removearea", method = RequestMethod.GET)
     private Map<Object, Object> removeArea(int areaId) {
         Map<Object, Object> modelMap = new HashMap<>();
-        modelMap.put("success", areaService.deleteArea(areaId));
+        modelMap.put("code", areaService.deleteArea(areaId)?200:0);
+        modelMap.put("msg","success");
+        modelMap.put("data","删除成功");
         return modelMap;
     }
 

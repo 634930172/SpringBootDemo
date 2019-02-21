@@ -50,7 +50,7 @@ public class AreaServiceImpl implements AreaService {
     @Transactional
     @Override
     public boolean insertArea(Area area) {
-        if (StringUtils.isNullOrEmpty(area.getAreaName())) {
+        if (!StringUtils.isNullOrEmpty(area.getAreaName())) {
             area.setCreateTime(new Date());
             area.setLastEditTime(new Date());
             try {
@@ -68,6 +68,7 @@ public class AreaServiceImpl implements AreaService {
         }
     }
 
+    @Transactional
     @Override
     public boolean modifyArea(Area area) {
         if (area != null && area.getAreaId() > 0) {

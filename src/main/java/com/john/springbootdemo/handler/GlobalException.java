@@ -2,7 +2,6 @@ package com.john.springbootdemo.handler;
 
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,8 +22,9 @@ public class GlobalException {
     @ResponseBody
     public Map<Object,Object> exceptionHandler( HttpServletRequest request,Exception e){
         Map<Object, Object> modelMap = new HashMap<>();
-        modelMap.put("success",false);
-        modelMap.put("message",e.getMessage());
+        modelMap.put("code",400);
+        modelMap.put("msg",e.getMessage());
+        modelMap.put("data",null);
         return modelMap;
     }
 
