@@ -23,5 +23,7 @@ public interface AreaService {
 
     boolean deleteArea(int  areaId);
 
+    List<Area> queryPageArea(int page,int size);
+
 
 }

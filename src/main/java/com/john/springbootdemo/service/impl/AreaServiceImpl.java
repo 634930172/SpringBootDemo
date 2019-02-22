@@ -105,4 +105,32 @@ public class AreaServiceImpl implements AreaService {
             throw new RuntimeException("区域ID必须大于0");
         }
     }
+
+    /**
+     * 分页加载 暂时用java代码判断
+     */
+    @Override
+    public List<Area> queryPageArea(int page,int size) {
+        if(page>=0){
+            try {
+                int reaPage=(page-1)*3;
+                if(reaPage<0){
+                    reaPage=0;
+                }
+                if(size==0){
+                    size=3;
+                }
+                List<Area> areas= areaDao.queryPageArea(reaPage,size);
+              if(areas!=null){
+                  return areas;
+              }else {
+                  throw new RuntimeException("查询失败");
+              }
+            }catch (Exception e){
+                throw  new RuntimeException("分页抛出异常："+e.getMessage());
+            }
+        }else {
+            throw new RuntimeException("页数必须大于0");
+        }
+    }
 }

@@ -2,8 +2,8 @@ package com.john.springbootdemo.web;
 
 import com.john.springbootdemo.entity.Area;
 import com.john.springbootdemo.service.AreaService;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -72,6 +72,17 @@ public class AreaController {
         modelMap.put("code", areaService.deleteArea(areaId)?200:0);
         modelMap.put("msg","success");
         modelMap.put("data","删除成功");
+        return modelMap;
+    }
+
+
+    @RequestMapping(value = "/addpagearea", method = RequestMethod.GET)
+    private Map<Object, Object> addPageArea(int page,int size) {
+        Map<Object, Object> modelMap = new HashMap<>();
+        List<Area> areaList=areaService.queryPageArea(page,size);
+        modelMap.put("code", 200);
+        modelMap.put("msg","success");
+        modelMap.put("data",areaList);
         return modelMap;
     }
 

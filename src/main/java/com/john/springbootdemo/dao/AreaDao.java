@@ -1,6 +1,7 @@
 package com.john.springbootdemo.dao;
 
 import com.john.springbootdemo.entity.Area;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -22,5 +23,7 @@ public interface AreaDao {
     int updateArea(Area area);
 
     int deleteArea(int  areaId);
+
+    List<Area> queryPageArea(@Param("page") int page,@Param("size") int size);
 
 }
