@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en"
+>
+<head>
+    <meta charset="UTF-8">
+    <title>上传图片示例</title>
+</head>
+<form  method="POST" enctype="multipart/form-data"
+       action="http://localhost:8086/api/testUploadFile">
+    <p>单文件上传：</p><br/>
+    <input type="file" name="file1"/>
+    <input type="submit" value = "上传"/>
+</form>
+<form method="POST" enctype="multipart/form-data"
+      action="http://localhost:8086/api/testUploadFiles">
+    <p>多文件上传：</p>
+    <p>文件1：<input type="file" name="file" /></p>
+    <p>文件2：<input type="file" name="file" /></p>
+    <p><input type="submit" value="上传" /></p>
+</form>
+<a href="http://localhost:8086/api/testDownload">下载</a>
+</body>
+</html>

@@ -2,7 +2,6 @@ package com.john.springbootdemo.web;
 
 import com.john.springbootdemo.entity.Area;
 import com.john.springbootdemo.service.AreaService;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -56,6 +55,7 @@ public class AreaController {
         modelMap.put("data","插入成功");
         return modelMap;
     }
+
     //没有将requestBody注解用上 后续再做探讨
     @RequestMapping(value = "/modifyarea", method = RequestMethod.POST)
     private Map<Object, Object> modifyArea(Area area) {
