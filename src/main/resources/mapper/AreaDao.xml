@@ -11,7 +11,7 @@
     </resultMap>
 
     <select id="queryArea" resultMap="BaseResultMap">
-        SELECT * FROM  tb_area ORDER BY priority DESC
+        SELECT * FROM  tb_area ORDER BY area_id ASC
     </select>
 
     <select id="queryAreaById" parameterType="int" resultMap="BaseResultMap"
