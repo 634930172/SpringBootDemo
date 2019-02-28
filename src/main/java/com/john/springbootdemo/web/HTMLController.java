@@ -159,21 +159,23 @@ public class HTMLController {
     }
 
     /**
-     * 文件下载
+     * 文件下载 设置文件的大小参数暂未实现
      */
     @RequestMapping(value = "/testDownload", method = RequestMethod.GET)
     public void testDownload(HttpServletResponse res) {
-        String fileName = "upload.jpg";
+        String fileName = "ttt.png";
+        File downLoadFile=new File("D:\\DownLoadFiles\\" + fileName);
         res.setHeader("content-type", "application/octet-stream");
         res.setContentType("application/octet-stream");
         res.setHeader("Content-Disposition", "attachment;filename=" + fileName);
+        res.setContentLengthLong(downLoadFile.length());//设置文件大小信息
         byte[] buff = new byte[1024];
         BufferedInputStream bis = null;
-        OutputStream os = null;
+        OutputStream os ;
+
         try {
             os = res.getOutputStream();
-            bis = new BufferedInputStream(new FileInputStream(new File("d://"
-                    + fileName)));
+            bis = new BufferedInputStream(new FileInputStream(downLoadFile));
             int i = bis.read(buff);
             while (i != -1) {
                 os.write(buff, 0, buff.length);
