@@ -13,9 +13,8 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
 /**
  * Author: John
@@ -45,13 +44,21 @@ public class HTMLController {
     @ResponseBody
     private HttpResult<String> testUploadFile(HttpServletRequest req,
                                               MultipartHttpServletRequest multiReq) {
-        //获取上传文件的路径
-        String uploadFilePath = multiReq.getFile("file1").getOriginalFilename();
-        System.out.println("uploadFlePath:" + uploadFilePath);
-        // 截取上传文件的文件名
+        //获取上传文件的文件名
+        String filename = multiReq.getFile("file1").getOriginalFilename();
+        System.out.println("filename: " + filename);
+        // 截取上传文件的后缀
+        String uploadFileSuffix = filename.substring(
+                filename.indexOf('.') + 1, filename.length());
+        //保存到数据库的文件名
+        String saveName= UUID.randomUUID().toString()+"."+uploadFileSuffix;
         FileOutputStream fos = null;
         FileInputStream fis = null;
-        File localUploadFile = new File("D:\\UploadFiles\\" + uploadFilePath);
+        File uploadDir = new File("D:\\UploadFiles");
+        if (!uploadDir.exists()) {
+            uploadDir.mkdir();
+        }
+        File localUploadFile = new File(uploadDir, saveName);
         if (!localUploadFile.exists()) {
             try {
                 localUploadFile.createNewFile();
@@ -98,22 +105,21 @@ public class HTMLController {
         List<MultipartFile> files = ((MultipartHttpServletRequest) request)
                 .getFiles("file");
         BufferedOutputStream stream = null;
-        Map<String, Object> map = new HashMap<>();
+        File uploadDir = new File("D:\\UploadFiles");
+        if (!uploadDir.exists()) {
+            uploadDir.mkdir();
+        }
         for (MultipartFile file : files) {
             if (!file.isEmpty()) {
                 try {
-                    String uploadFilePath = file.getOriginalFilename();
-                    System.out.println("uploadFlePath:" + uploadFilePath);
-                    //                    // 截取上传文件的文件名
-                    //                    String uploadFileName = uploadFilePath
-                    //                            .substring(uploadFilePath.lastIndexOf('\\') + 1,
-                    //                                    uploadFilePath.indexOf('.'));
-                    //                    System.out.println("multiReq.getFile()" + uploadFileName);
-                    //                    // 截取上传文件的后缀
-                    //                    String uploadFileSuffix = uploadFilePath.substring(
-                    //                            uploadFilePath.indexOf('.') + 1, uploadFilePath.length());
-                    //                    System.out.println("uploadFileSuffix:" + uploadFileSuffix);
-                    File localUploadFile = new File("D:\\UploadFiles\\" + uploadFilePath);
+                    String filename = file.getOriginalFilename();
+                    System.out.println("filename: " + filename);
+                    // 截取上传文件的后缀
+                    String uploadFileSuffix = filename.substring(
+                            filename.indexOf('.') + 1, filename.length());
+                    //保存到数据库的文件名
+                    String saveName= UUID.randomUUID().toString()+"."+uploadFileSuffix;
+                    File localUploadFile = new File(uploadDir, saveName);
                     if (!localUploadFile.exists()) {
                         try {
                             localUploadFile.createNewFile();
@@ -147,7 +153,7 @@ public class HTMLController {
      */
     @RequestMapping(value = "/testDownload", method = RequestMethod.GET)
     public void testDownload(HttpServletResponse res) {
-        String fileName = "ttt.png";
+        String fileName = "ttsst.png";
         File downLoadFile = new File("D:\\DownLoadFiles\\" + fileName);
         res.setHeader("content-type", "application/octet-stream");
         res.setContentType("application/octet-stream");
@@ -156,7 +162,6 @@ public class HTMLController {
         byte[] buff = new byte[1024];
         BufferedInputStream bis = null;
         OutputStream os;
-
         try {
             os = res.getOutputStream();
             bis = new BufferedInputStream(new FileInputStream(downLoadFile));
