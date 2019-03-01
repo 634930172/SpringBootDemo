@@ -1,12 +1,12 @@
 package com.john.springbootdemo.handler;
 
+import com.john.springbootdemo.result.HttpResult;
+import com.john.springbootdemo.result.ResultUtil;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Author: John
@@ -20,12 +20,12 @@ public class GlobalException {
 
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
-    public Map<Object,Object> exceptionHandler( HttpServletRequest request,Exception e){
-        Map<Object, Object> modelMap = new HashMap<>();
-        modelMap.put("code",400);
-        modelMap.put("msg",e.getMessage());
-        modelMap.put("data",null);
-        return modelMap;
+    public <T> HttpResult<T> exceptionHandler(HttpServletRequest request, Exception e) {
+        if (e instanceof PromoteException) {
+            PromoteException promoteException = (PromoteException) e;
+            return ResultUtil.errorPromote(promoteException.getCode(), e.getMessage());
+        }
+        return ResultUtil.errorPromote(-1, e.getMessage());
     }
 
 

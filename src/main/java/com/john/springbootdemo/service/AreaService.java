@@ -1,6 +1,7 @@
 package com.john.springbootdemo.service;
 
 import com.john.springbootdemo.entity.Area;
+import com.john.springbootdemo.result.HttpResult;
 
 import java.util.List;
 
@@ -13,17 +14,17 @@ import java.util.List;
  */
 public interface AreaService {
 
-    List<Area> queryArea();
+    HttpResult<List<Area>> queryArea();
 
-    Area queryAreaById(int areaId);
+    HttpResult<Area> queryAreaById(int areaId);
 
-    boolean insertArea(Area area);
+    HttpResult<String> insertArea(Area area);
 
-    boolean modifyArea(Area area);
+    HttpResult<String> modifyArea(Area area);
 
-    boolean deleteArea(int  areaId);
+    HttpResult<String> deleteArea(int  areaId);
 
-    List<Area> queryPageArea(int page,int size);
+    HttpResult<List<Area>> queryPageArea(int index,int size);
 
 
 }

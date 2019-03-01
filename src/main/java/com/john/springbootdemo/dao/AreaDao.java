@@ -24,6 +24,6 @@ public interface AreaDao {
 
     int deleteArea(int  areaId);
 
-    List<Area> queryPageArea(@Param("page") int page,@Param("size") int size);
+    List<Area> queryPageArea(@Param("index") int page,@Param("offset") int size);
 
 }

@@ -2,6 +2,10 @@ package com.john.springbootdemo.service.impl;
 
 import com.john.springbootdemo.dao.AreaDao;
 import com.john.springbootdemo.entity.Area;
+import com.john.springbootdemo.enums.ResultEnum;
+import com.john.springbootdemo.handler.PromoteException;
+import com.john.springbootdemo.result.HttpResult;
+import com.john.springbootdemo.result.ResultUtil;
 import com.john.springbootdemo.service.AreaService;
 import com.mysql.jdbc.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,84 +29,47 @@ public class AreaServiceImpl implements AreaService {
     private AreaDao areaDao;
 
     @Override
-    public List<Area> queryArea() {
-        return areaDao.queryArea();
+    public HttpResult<List<Area>> queryArea() {
+        return ResultUtil.retrunData(areaDao.queryArea());
     }
 
     @Override
-    public Area queryAreaById(int areaId) {
-        if (areaId > 0) {
-            try {
-                Area area = areaDao.queryAreaById(areaId);
-                if (area != null) {
-                    return area;
-                } else {
-                    throw new RuntimeException("区域返回数据为空----");
-                }
-            } catch (Exception e) {
-                throw new RuntimeException("返回区域错误：" + e.getMessage());
-            }
+    public HttpResult<Area> queryAreaById(int areaId) {
+        return ResultUtil.retrunData(areaDao.queryAreaById(areaId));
+    }
+
+    @Transactional
+    @Override
+    public HttpResult<String> insertArea(Area area) {
+        area.setCreateTime(new Date());
+        area.setLastEditTime(new Date());
+        int i = areaDao.insertArea(area);
+        if (i > 0) {
+            return ResultUtil.operateSuccess();
         } else {
-            throw new RuntimeException("区域ID必须大于0");
+            throw new PromoteException(ResultEnum.INSERT_FAILED);
         }
     }
 
     @Transactional
     @Override
-    public boolean insertArea(Area area) {
-        if (!StringUtils.isNullOrEmpty(area.getAreaName())) {
-            area.setCreateTime(new Date());
-            area.setLastEditTime(new Date());
-            try {
-                int i = areaDao.insertArea(area);
-                if (i > 0) {
-                    return true;
-                } else {
-                    throw new RuntimeException("插入区域信息失败失败");
-                }
-            } catch (Exception e) {
-                throw new RuntimeException("插入失败：" + e.getMessage());
-            }
+    public HttpResult<String> modifyArea(Area area) {
+        area.setLastEditTime(new Date());
+        int i = areaDao.updateArea(area);
+        if (i > 0) {
+            return ResultUtil.operateSuccess();
         } else {
-            throw new RuntimeException("区域信息为空");
-        }
-    }
-
-    @Transactional
-    @Override
-    public boolean modifyArea(Area area) {
-        if (area != null && area.getAreaId() > 0) {
-            area.setLastEditTime(new Date());
-            try {
-                int i = areaDao.updateArea(area);
-                if (i > 0) {
-                    return true;
-                } else {
-                    throw new RuntimeException("更新数据失败");
-                }
-            } catch (Exception e) {
-                throw new RuntimeException("更新数据失败：" + e.getMessage());
-            }
-        } else {
-            throw new RuntimeException("区域信息不能为空");
+            throw new PromoteException(ResultEnum.UPDATE_FAILED);
         }
     }
 
     @Override
-    public boolean deleteArea(int areaId) {
-        if (areaId > 0) {
-            try {
-                int i = areaDao.deleteArea(areaId);
-                if (i > 0) {
-                    return true;
-                }else {
-                    throw new RuntimeException("删除区域信息失败");
-                }
-            } catch (Exception e) {
-                    throw  new RuntimeException("删除区域信息失败："+e.getMessage());
-            }
+    public HttpResult<String> deleteArea(int areaId) {
+        int i = areaDao.deleteArea(areaId);
+        if (i > 0) {
+            return ResultUtil.operateSuccess();
         } else {
-            throw new RuntimeException("区域ID必须大于0");
+            throw new PromoteException(ResultEnum.DELETE_FAILED);
         }
     }
 
@@ -110,27 +77,12 @@ public class AreaServiceImpl implements AreaService {
      * 分页加载 暂时用java代码判断
      */
     @Override
-    public List<Area> queryPageArea(int page,int size) {
-        if(page>=0){
-            try {
-                int reaPage=(page-1)*3;
-                if(reaPage<0){
-                    reaPage=0;
-                }
-                if(size==0){
-                    size=3;
-                }
-                List<Area> areas= areaDao.queryPageArea(reaPage,size);
-              if(areas!=null){
-                  return areas;
-              }else {
-                  throw new RuntimeException("查询失败");
-              }
-            }catch (Exception e){
-                throw  new RuntimeException("分页抛出异常："+e.getMessage());
-            }
-        }else {
-            throw new RuntimeException("页数必须大于0");
+    public HttpResult<List<Area>> queryPageArea(int index, int offset) {
+        List<Area> areas = areaDao.queryPageArea(index, offset);
+        if (areas != null && !areas.isEmpty()) {
+            return ResultUtil.retrunData(areas);
+        } else {
+            throw new PromoteException(ResultEnum.QUERY_FAILED);
         }
     }
 }

@@ -1,7 +1,9 @@
 package com.john.springbootdemo.web;
 
+import com.john.springbootdemo.result.HttpResult;
+import com.john.springbootdemo.result.ResultUtil;
+import com.john.springbootdemo.util.LogUtil;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -41,9 +43,8 @@ public class HTMLController {
      */
     @RequestMapping(value = "/testUploadFile", method = RequestMethod.POST)
     @ResponseBody
-    private Map<String, Object> testUploadFile(HttpServletRequest req,
-                                               MultipartHttpServletRequest multiReq) {
-        Map<String, Object> map = new HashMap<>();
+    private HttpResult<String> testUploadFile(HttpServletRequest req,
+                                              MultipartHttpServletRequest multiReq) {
         //获取上传文件的路径
         String uploadFilePath = multiReq.getFile("file1").getOriginalFilename();
         System.out.println("uploadFlePath:" + uploadFilePath);
@@ -63,15 +64,12 @@ public class HTMLController {
             fos = new FileOutputStream(localUploadFile);
             byte[] temp = new byte[1024];
             int len;
-            while ((len=fis.read(temp)) != -1) {
+            while ((len = fis.read(temp)) != -1) {
                 fos.write(temp, 0, len);
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            map.put("code", 401);
-            map.put("msg", "false");
-            map.put("data", e.getMessage());
-            return map;
+            LogUtil.log("捕获到异常");
+            return ResultUtil.errorPromote(e.getMessage());
         } finally {
             if (fis != null) {
                 try {
@@ -88,11 +86,7 @@ public class HTMLController {
                 }
             }
         }
-        map.put("code", 200);
-        map.put("msg", "success");
-        map.put("data", "上传成功鸭");
-        return map;
-
+        return ResultUtil.operateSuccess();
     }
 
     /**
@@ -100,7 +94,7 @@ public class HTMLController {
      */
     @RequestMapping(value = "testUploadFiles", method = RequestMethod.POST)
     @ResponseBody
-    private Map<String, Object> handleFileUpload(HttpServletRequest request) {
+    private HttpResult<String> handleFileUpload(HttpServletRequest request) {
         List<MultipartFile> files = ((MultipartHttpServletRequest) request)
                 .getFiles("file");
         BufferedOutputStream stream = null;
@@ -110,15 +104,15 @@ public class HTMLController {
                 try {
                     String uploadFilePath = file.getOriginalFilename();
                     System.out.println("uploadFlePath:" + uploadFilePath);
-//                    // 截取上传文件的文件名
-//                    String uploadFileName = uploadFilePath
-//                            .substring(uploadFilePath.lastIndexOf('\\') + 1,
-//                                    uploadFilePath.indexOf('.'));
-//                    System.out.println("multiReq.getFile()" + uploadFileName);
-//                    // 截取上传文件的后缀
-//                    String uploadFileSuffix = uploadFilePath.substring(
-//                            uploadFilePath.indexOf('.') + 1, uploadFilePath.length());
-//                    System.out.println("uploadFileSuffix:" + uploadFileSuffix);
+                    //                    // 截取上传文件的文件名
+                    //                    String uploadFileName = uploadFilePath
+                    //                            .substring(uploadFilePath.lastIndexOf('\\') + 1,
+                    //                                    uploadFilePath.indexOf('.'));
+                    //                    System.out.println("multiReq.getFile()" + uploadFileName);
+                    //                    // 截取上传文件的后缀
+                    //                    String uploadFileSuffix = uploadFilePath.substring(
+                    //                            uploadFilePath.indexOf('.') + 1, uploadFilePath.length());
+                    //                    System.out.println("uploadFileSuffix:" + uploadFileSuffix);
                     File localUploadFile = new File("D:\\UploadFiles\\" + uploadFilePath);
                     if (!localUploadFile.exists()) {
                         try {
@@ -131,11 +125,7 @@ public class HTMLController {
                     byte[] bytes = file.getBytes();
                     stream.write(bytes, 0, bytes.length);
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    map.put("code", 401);
-                    map.put("msg", "false ");
-                    map.put("data", e.getMessage());
-                    return map;
+                    return ResultUtil.errorPromote(e.getMessage());
                 } finally {
                     try {
                         if (stream != null) {
@@ -146,16 +136,10 @@ public class HTMLController {
                     }
                 }
             } else {
-                map.put("code", 401);
-                map.put("msg", "false");
-                map.put("data", "上传文件为空");
-                return map;
+                return ResultUtil.errorPromote("接收到空的文件");
             }
         }
-        map.put("code", 200);
-        map.put("msg", "success");
-        map.put("data", "多文件上传成功鸭");
-        return map;
+        return ResultUtil.operateSuccess();
     }
 
     /**
@@ -164,14 +148,14 @@ public class HTMLController {
     @RequestMapping(value = "/testDownload", method = RequestMethod.GET)
     public void testDownload(HttpServletResponse res) {
         String fileName = "ttt.png";
-        File downLoadFile=new File("D:\\DownLoadFiles\\" + fileName);
+        File downLoadFile = new File("D:\\DownLoadFiles\\" + fileName);
         res.setHeader("content-type", "application/octet-stream");
         res.setContentType("application/octet-stream");
         res.setHeader("Content-Disposition", "attachment;filename=" + fileName);
         res.setContentLengthLong(downLoadFile.length());//设置文件大小信息
         byte[] buff = new byte[1024];
         BufferedInputStream bis = null;
-        OutputStream os ;
+        OutputStream os;
 
         try {
             os = res.getOutputStream();
@@ -193,7 +177,7 @@ public class HTMLController {
                 }
             }
         }
-        System.out.println("success");
+        LogUtil.log("执行完毕");
     }
 }
 

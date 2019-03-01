@@ -42,7 +42,7 @@
     <!--分页待优化，暂时放到java计算页码，后面计算逻辑放到sql里面 多个参数不能使用prarmtype-->
     <select id="queryPageArea" resultMap="BaseResultMap"
     >
-        select * from tb_area limit #{page},#{size}
+        select * from tb_area limit #{index},#{offset}
     </select>
 
 </mapper>
