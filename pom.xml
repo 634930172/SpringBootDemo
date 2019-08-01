@@ -11,6 +11,8 @@
     <groupId>com.john</groupId>
     <artifactId>springbootdemo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <!--打包成war包-->
+    <packaging>war</packaging>
     <name>springbootdemo</name>
     <description>Demo project for Spring Boot</description>
 
@@ -52,6 +54,14 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
+
+        <!--打包war tomcat由外部提供 本地运行时注释掉-->
+        <!--<dependency>-->
+            <!--<groupId>org.springframework.boot</groupId>-->
+            <!--<artifactId>spring-boot-starter-tomcat</artifactId>-->
+            <!--<scope>provided</scope>-->
+        <!--</dependency>-->
+
     </dependencies>
 
     <build>

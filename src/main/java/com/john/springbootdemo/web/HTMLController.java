@@ -27,10 +27,15 @@ import java.util.UUID;
 @Controller
 public class HTMLController {
 
-    @RequestMapping(value = "/mainpage")
+    @RequestMapping(value = "/success")
     private String getmainPage() {
-        return "index";
+        return "success";
     }
+
+//    @RequestMapping(value = "/")
+//    private String welcomePage() {
+//        return "welcome";
+//    }
 
     @RequestMapping(value = "/uploadimage", method = RequestMethod.GET)
     private String uploadimage() {
