@@ -36,4 +36,5 @@ public class HttpResult<T> {
     public T getData() {
         return data;
     }
+
 }
