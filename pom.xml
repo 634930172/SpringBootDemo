@@ -63,6 +63,13 @@
             <!--<scope>provided</scope>-->
         <!--</dependency>-->
 
+        <!-- SpringBoot2.0整合redis -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+
     </dependencies>
 
     <build>
