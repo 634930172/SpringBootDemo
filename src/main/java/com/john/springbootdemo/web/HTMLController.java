@@ -3,6 +3,7 @@ package com.john.springbootdemo.web;
 import com.john.springbootdemo.result.HttpResult;
 import com.john.springbootdemo.result.ResultUtil;
 import com.john.springbootdemo.util.LogUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -26,6 +27,11 @@ import java.util.UUID;
 //访问HTML页面的注解
 @Controller
 public class HTMLController {
+
+    @Value("${upload_file_dir}")
+    private String upLoadFileName;
+
+
 
     @RequestMapping(value = "/success")
     private String getmainPage() {
@@ -59,11 +65,12 @@ public class HTMLController {
         String saveName= UUID.randomUUID().toString()+"."+uploadFileSuffix;
         FileOutputStream fos = null;
         FileInputStream fis = null;
-        File uploadDir = new File("D:\\UploadFiles");
+        File uploadDir = new File(upLoadFileName);
         if (!uploadDir.exists()) {
             uploadDir.mkdir();
         }
-        File localUploadFile = new File(uploadDir, saveName);
+//        File localUploadFile = new File(uploadDir, saveName);
+        File localUploadFile = new File(uploadDir, filename);//用用户的原始名字和后缀
         if (!localUploadFile.exists()) {
             try {
                 localUploadFile.createNewFile();
@@ -98,7 +105,7 @@ public class HTMLController {
                 }
             }
         }
-        return ResultUtil.operateSuccess();
+        return ResultUtil.retrunMsg("http://www.johndevelop.cn/images/"+localUploadFile.getName());
     }
 
     /**
