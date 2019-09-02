@@ -14,7 +14,9 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -32,16 +34,21 @@ public class HTMLController {
     private String upLoadFileName;
 
 
+    @Value("${local_ip}")
+    private String ipHost;
+
+    @Value("${download_file_path}")
+    private String downloadFilePath;
 
     @RequestMapping(value = "/success")
     private String getmainPage() {
         return "success";
     }
 
-//    @RequestMapping(value = "/")
-//    private String welcomePage() {
-//        return "welcome";
-//    }
+    //    @RequestMapping(value = "/")
+    //    private String welcomePage() {
+    //        return "welcome";
+    //    }
 
     @RequestMapping(value = "/uploadimage", method = RequestMethod.GET)
     private String uploadimage() {
@@ -53,8 +60,8 @@ public class HTMLController {
      */
     @RequestMapping(value = "/testUploadFile", method = RequestMethod.POST)
     @ResponseBody
-    private HttpResult<String> testUploadFile(HttpServletRequest req,
-                                              MultipartHttpServletRequest multiReq) {
+    private HttpResult<Map<String, Object>> testUploadFile(HttpServletRequest req,
+                                                           MultipartHttpServletRequest multiReq) {
         //获取上传文件的文件名
         String filename = multiReq.getFile("file1").getOriginalFilename();
         System.out.println("filename: " + filename);
@@ -62,14 +69,14 @@ public class HTMLController {
         String uploadFileSuffix = filename.substring(
                 filename.indexOf('.') + 1, filename.length());
         //保存到数据库的文件名
-        String saveName= UUID.randomUUID().toString()+"."+uploadFileSuffix;
+        String saveName = UUID.randomUUID().toString() + "." + uploadFileSuffix;
         FileOutputStream fos = null;
         FileInputStream fis = null;
         File uploadDir = new File(upLoadFileName);
         if (!uploadDir.exists()) {
             uploadDir.mkdir();
         }
-//        File localUploadFile = new File(uploadDir, saveName);
+        //        File localUploadFile = new File(uploadDir, saveName);
         File localUploadFile = new File(uploadDir, filename);//用用户的原始名字和后缀
         if (!localUploadFile.exists()) {
             try {
@@ -105,7 +112,9 @@ public class HTMLController {
                 }
             }
         }
-        return ResultUtil.retrunMsg("http://www.johndevelop.cn/images/"+localUploadFile.getName());
+        Map<String, Object> map = new HashMap<>();
+        map.put("url", ipHost + "/images/" + localUploadFile.getName());
+        return ResultUtil.retrunData(map);
     }
 
     /**
@@ -113,34 +122,35 @@ public class HTMLController {
      */
     @RequestMapping(value = "testUploadFiles", method = RequestMethod.POST)
     @ResponseBody
-    private HttpResult<String> handleFileUpload(HttpServletRequest request) {
+    private HttpResult<Map<String, Object>> handleFileUpload(HttpServletRequest request) {
         List<MultipartFile> files = ((MultipartHttpServletRequest) request)
                 .getFiles("file");
         BufferedOutputStream stream = null;
-        File uploadDir = new File("D:\\UploadFiles");
+        File uploadDir = new File(upLoadFileName);
         if (!uploadDir.exists()) {
             uploadDir.mkdir();
         }
-        for (MultipartFile file : files) {
-            if (!file.isEmpty()) {
+        Map<String, Object> map = new HashMap<>();
+        if (files.isEmpty()) {
+            return null;
+        }
+        for (int i = 0; i < files.size(); i++) {
+            if (!files.get(i).isEmpty()) {
+                File localUploadFile;
                 try {
-                    String filename = file.getOriginalFilename();
+                    String filename = files.get(i).getOriginalFilename();
                     System.out.println("filename: " + filename);
-                    // 截取上传文件的后缀
+                    //截取上传文件的后缀
                     String uploadFileSuffix = filename.substring(
                             filename.indexOf('.') + 1, filename.length());
                     //保存到数据库的文件名
-                    String saveName= UUID.randomUUID().toString()+"."+uploadFileSuffix;
-                    File localUploadFile = new File(uploadDir, saveName);
+                    String saveName = UUID.randomUUID().toString() + "." + uploadFileSuffix;
+                    localUploadFile = new File(uploadDir, filename);
                     if (!localUploadFile.exists()) {
-                        try {
-                            localUploadFile.createNewFile();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        localUploadFile.createNewFile();
                     }
                     stream = new BufferedOutputStream(new FileOutputStream(localUploadFile));
-                    byte[] bytes = file.getBytes();
+                    byte[] bytes = files.get(i).getBytes();
                     stream.write(bytes, 0, bytes.length);
                 } catch (Exception e) {
                     return ResultUtil.errorPromote(e.getMessage());
@@ -153,20 +163,21 @@ public class HTMLController {
                         e.printStackTrace();
                     }
                 }
+                map.put("url" + i, ipHost + "/images/" + localUploadFile.getName());
             } else {
                 return ResultUtil.errorPromote("接收到空的文件");
             }
         }
-        return ResultUtil.operateSuccess();
+        return ResultUtil.retrunData(map);
     }
 
     /**
-     * 文件下载 设置文件的大小参数暂未实现
+     * 文件下载
      */
     @RequestMapping(value = "/testDownload", method = RequestMethod.GET)
     public void testDownload(HttpServletResponse res) {
-        String fileName = "ttsst.png";
-        File downLoadFile = new File("D:\\DownLoadFiles\\" + fileName);
+        String fileName = "app-test.apk";
+        File downLoadFile = new File(downloadFilePath , fileName);
         res.setHeader("content-type", "application/octet-stream");
         res.setContentType("application/octet-stream");
         res.setHeader("Content-Disposition", "attachment;filename=" + fileName);
@@ -174,6 +185,7 @@ public class HTMLController {
         byte[] buff = new byte[1024];
         BufferedInputStream bis = null;
         OutputStream os;
+        LogUtil.log("开始写入");
         try {
             os = res.getOutputStream();
             bis = new BufferedInputStream(new FileInputStream(downLoadFile));
@@ -185,6 +197,7 @@ public class HTMLController {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            LogUtil.log("异常信息--> "+e.getMessage());
         } finally {
             if (bis != null) {
                 try {
