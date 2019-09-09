@@ -7,7 +7,6 @@ import com.john.springbootdemo.handler.PromoteException;
 import com.john.springbootdemo.result.HttpResult;
 import com.john.springbootdemo.result.ResultUtil;
 import com.john.springbootdemo.service.AreaService;
-import com.mysql.jdbc.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

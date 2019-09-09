@@ -1,6 +1,7 @@
 package com.john.springbootdemo.config.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -21,6 +22,7 @@ import javax.sql.DataSource;
 public class TransactionManagementConfiguration implements TransactionManagementConfigurer {
 
     @Autowired
+    @Qualifier("dataSource")//之前没有加上的 为了更好的区分
     private DataSource dataSource;
 
     @Override
