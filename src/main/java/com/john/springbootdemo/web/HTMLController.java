@@ -177,7 +177,7 @@ public class HTMLController {
     @RequestMapping(value = "/testDownload", method = RequestMethod.GET)
     public void testDownload(HttpServletResponse res) {
         String fileName = "app-test.apk";
-        File downLoadFile = new File(downloadFilePath , fileName);
+        File downLoadFile = new File(downloadFilePath, fileName);
         res.setHeader("content-type", "application/octet-stream");
         res.setContentType("application/octet-stream");
         res.setHeader("Content-Disposition", "attachment;filename=" + fileName);
@@ -197,7 +197,7 @@ public class HTMLController {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            LogUtil.log("异常信息--> "+e.getMessage());
+            LogUtil.log("异常信息--> " + e.getMessage());
         } finally {
             if (bis != null) {
                 try {
@@ -209,6 +209,244 @@ public class HTMLController {
         }
         LogUtil.log("执行完毕");
     }
+
+
+    /**
+     * 文件断点下载
+     */
+    @RequestMapping(value = "/breakPointDownloadPng", method = RequestMethod.GET)
+    public void breakPointDownload(HttpServletResponse resp, HttpServletRequest req) {
+        String fileName = "downloadtest.png";
+        File downLoadFile;
+        OutputStream os = null;
+        FileInputStream is = null;
+        try {
+            downLoadFile = new File(downloadFilePath, fileName);
+            is = new FileInputStream(downLoadFile);
+            long fileSize = downLoadFile.length();
+            resp.setHeader("Accept-Ranges", "bytes");
+            //			resp.setHeader("Content-Length", fileSize + "");
+            String range = req.getHeader("Range");
+            LogUtil.log("开始断点传输图片---range->"+range);
+            int status = HttpServletResponse.SC_OK; // 返回的状态码，默认200，首次下载
+            // 如果range下载区域为空，则首次下载，
+            if (range == null) {
+                range = "bytes=0-";
+            } else {
+                // 通过下载区域下载，使用206状态码支持断点续传
+                status = HttpServletResponse.SC_PARTIAL_CONTENT;
+            }
+
+            long start = 0, end = 0;
+            if (range.startsWith("bytes=")) {
+                String[] values = range.split("=")[1].split("-");
+                start = Integer.parseInt(values[0]);
+                // 如果服务器端没有设置end结尾，默认取下载全部
+                if (values.length == 1) {
+                    end = fileSize;
+                } else {
+                    end = Integer.parseInt(values[1]);
+                }
+                LogUtil.log("图片 start:"+start+" 图片end: "+end);
+            }
+            // 此次数据响应大小
+            long responseSize = 0;
+            if (end != 0 && end > start) {
+//                responseSize = end - start + 1;
+                responseSize = end - start ;
+                // 返回当前连接下载的数据大小,也就是此次数据传输大小
+                resp.addHeader("Content-Length", "" + responseSize);
+            } else {
+                responseSize = Integer.MAX_VALUE;
+            }
+
+            byte[] buffer = new byte[4096];
+            // 设置响应状态码
+            resp.setStatus(status);
+            if (status == HttpServletResponse.SC_PARTIAL_CONTENT) {
+                // 设置断点续传的Content-Range传输字节和总字节
+                resp.addHeader("Content-Range", "bytes " + start + "-" + (fileSize - 1) + "/" + fileSize);
+            }
+            // 设置响应客户端内容类型
+            resp.setContentType("application/x-download");
+            // 设置响应客户端头
+            resp.addHeader("Content-Disposition", "attachment;filename=" + fileName);
+            // 当前需要下载文件的大小
+            int needSize = (int) responseSize;
+            if (start != 0) {
+                // 跳已经传输过的字节
+                is.skip(start);
+            }
+            os = resp.getOutputStream();
+            while (needSize > 0) {
+                int len = is.read(buffer);
+                if (needSize < buffer.length) {
+                    os.write(buffer, 0, needSize);
+                } else {
+                    os.write(buffer, 0, len);
+                    // 如果读取文件大小小于缓冲字节大小，表示已写入完，直接跳出
+                    if (len < buffer.length) {
+                        break;
+                    }
+                }
+                // 不断更新当前可下载文件大小
+                needSize -= buffer.length;
+            }
+            LogUtil.log("png断点传输完成------>");
+        } catch (IOException e) {
+            e.printStackTrace();
+            LogUtil.log("png断点传输异常信息--> " + e.getMessage());
+        } finally {
+            close(os, is);
+        }
+
+    }
+
+    private void close(OutputStream os, FileInputStream is) {
+        try {
+            if (is != null) {
+                is.close();
+            }
+            if (os != null)
+                os.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 文件断点下载
+     */
+    @RequestMapping(value = "/breakPointDownloadApk", method = RequestMethod.GET)
+    public void breakPointDownloadApk(HttpServletResponse resp, HttpServletRequest req) {
+        String fileName = "app-test.apk";
+        OutputStream apkOs = null;
+        FileInputStream apkIs = null;
+        dealFile(resp, req, fileName, apkOs, apkIs);
+
+    }
+
+    /**
+     * 文件断点下载
+     */
+    @RequestMapping(value = "/breakPointDownloadApk2", method = RequestMethod.GET)
+    public void breakPointDownloadApk2(HttpServletResponse resp, HttpServletRequest req) {
+        String fileName = "app-test2.apk";
+        OutputStream apkOs = null;
+        FileInputStream apkIs = null;
+        dealFile(resp, req, fileName, apkOs, apkIs);
+
+    }
+
+    /**
+     * 文件断点下载
+     */
+    @RequestMapping(value = "/breakPointDownloadApk3", method = RequestMethod.GET)
+    public void breakPointDownloadApk3(HttpServletResponse resp, HttpServletRequest req) {
+        String fileName = "app-test3.apk";
+        OutputStream apkOs = null;
+        FileInputStream apkIs = null;
+        dealFile(resp, req, fileName, apkOs, apkIs);
+
+    }
+
+    /**
+     * 文件断点下载
+     */
+    @RequestMapping(value = "/breakPointDownloadApk4", method = RequestMethod.GET)
+    public void breakPointDownloadApk4(HttpServletResponse resp, HttpServletRequest req) {
+        String fileName = "app-test4.apk";
+        OutputStream apkOs = null;
+        FileInputStream apkIs = null;
+        dealFile(resp, req, fileName, apkOs, apkIs);
+
+    }
+
+
+    private void dealFile(HttpServletResponse resp, HttpServletRequest req, String fileName, OutputStream apkOs, FileInputStream apkIs) {
+        File downLoadFile;
+        try {
+            downLoadFile = new File(downloadFilePath, fileName);
+            apkIs = new FileInputStream(downLoadFile);
+            long fileSize = downLoadFile.length();
+            resp.setHeader("Accept-Ranges", "bytes");
+            //			resp.setHeader("Content-Length", fileSize + "");
+            String range = req.getHeader("Range");
+            LogUtil.log("开始断点传输APK---range->"+range);
+            int status = HttpServletResponse.SC_OK; // 返回的状态码，默认200，首次下载
+            // 如果range下载区域为空，则首次下载，
+            if (range == null) {
+                range = "bytes=0-";
+            } else {
+                // 通过下载区域下载，使用206状态码支持断点续传
+                status = HttpServletResponse.SC_PARTIAL_CONTENT;
+            }
+
+            long start = 0, end = 0;
+            if (range.startsWith("bytes=")) {
+                String[] values = range.split("=")[1].split("-");
+                start = Integer.parseInt(values[0]);
+                // 如果服务器端没有设置end结尾，默认取下载全部
+                if (values.length == 1) {
+                    end = fileSize;
+                } else {
+                    end = Integer.parseInt(values[1]);
+                }
+                LogUtil.log("APK start:"+start+" 图片end: "+end);
+            }
+            // 此次数据响应大小
+            long responseSize = 0;
+            if (end != 0 && end > start) {
+                //                responseSize = end - start + 1;
+                responseSize = end - start ;
+                // 返回当前连接下载的数据大小,也就是此次数据传输大小
+                resp.addHeader("Content-Length", "" + responseSize);
+            } else {
+                responseSize = Integer.MAX_VALUE;
+            }
+
+            byte[] buffer = new byte[4096];
+            // 设置响应状态码
+            resp.setStatus(status);
+            if (status == HttpServletResponse.SC_PARTIAL_CONTENT) {
+                // 设置断点续传的Content-Range传输字节和总字节
+                resp.addHeader("Content-Range", "bytes " + start + "-" + (fileSize - 1) + "/" + fileSize);
+            }
+            // 设置响应客户端内容类型
+            resp.setContentType("application/x-download");
+            // 设置响应客户端头
+            resp.addHeader("Content-Disposition", "attachment;filename=" + fileName);
+            // 当前需要下载文件的大小
+            int needSize = (int) responseSize;
+            if (start != 0) {
+                // 跳已经传输过的字节
+                apkIs.skip(start);
+            }
+            apkOs = resp.getOutputStream();
+            while (needSize > 0) {
+                int len = apkIs.read(buffer);
+                if (needSize < buffer.length) {
+                    apkOs.write(buffer, 0, needSize);
+                } else {
+                    apkOs.write(buffer, 0, len);
+                    // 如果读取文件大小小于缓冲字节大小，表示已写入完，直接跳出
+                    if (len < buffer.length) {
+                        break;
+                    }
+                }
+                // 不断更新当前可下载文件大小
+                needSize -= buffer.length;
+            }
+            LogUtil.log("apk断点传输完成------>");
+        } catch (IOException e) {
+            e.printStackTrace();
+            LogUtil.log("apk断点传输异常信息--> " + e.getMessage());
+        } finally {
+            close(apkOs, apkIs);
+        }
+    }
+
+
 }
 
 
